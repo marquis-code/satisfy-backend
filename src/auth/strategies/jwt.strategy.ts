@@ -29,12 +29,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       case 'vendor':
         const vendor = await this.vendorService.findById(payload.sub);
         if (!vendor) throw new UnauthorizedException('Vendor not found');
-        return { ...vendor, type: 'vendor' };
+        return { ...vendor.toObject(), type: 'vendor' };
 
       case 'customer':
         const customer = await this.customerService.findById(payload.sub);
         if (!customer) throw new UnauthorizedException('Customer not found');
-        return { ...customer, type: 'customer' };
+        return { ...customer.toObject(), type: 'customer' };
 
       default:
         throw new UnauthorizedException('Invalid user type');

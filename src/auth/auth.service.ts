@@ -66,7 +66,7 @@ export class AuthService {
     });
 
     // Create wallet for the user
-    await this.walletModel.create(newUser._id);
+    await this.walletModel.create({ customerId: newUser._id });
 
     return {
       message: 'Customer created successfully',
