@@ -12,7 +12,7 @@ import * as bcrypt from 'bcrypt';
 
 import { InjectModel } from '@nestjs/mongoose';
 import { Vendor } from '../vendor/schemas/vendor.schema';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { VendorSignupDto } from './dto/vendor-signup.dto';
 import { Wallet } from '../wallet/schemas/wallet.schema';
@@ -23,6 +23,8 @@ import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private jwtService: JwtService,
     // private userService: UserService,
@@ -67,7 +69,9 @@ export class AuthService {
 
     // Create wallet for the user
     await this.walletModel.create({ customerId: newUser._id });
-
+    this.logger.log(
+      `Auth-Service-- Customer Account with ${newUser.email} created successfully`,
+    );
     return {
       message: 'Customer created successfully',
       customer: {
@@ -101,6 +105,9 @@ export class AuthService {
       'customer',
     );
 
+    this.logger.log(
+      `Auth-Service-- Customer Account with ${customer.email} logged in successfully`,
+    );
     return {
       customer: {
         _id: customer._id,
@@ -159,6 +166,10 @@ export class AuthService {
     // Create wallet for the vendor
     await this.walletModel.create({ vendorId: newVendor._id });
 
+    this.logger.log(
+      `Auth-Service-- Vendor Account with ${newVendor.email} created successfully`,
+    );
+
     return {
       message: 'Vendor created successfully',
       vendor: {
@@ -193,7 +204,9 @@ export class AuthService {
       vendor.email,
       'vendor',
     );
-
+    this.logger.log(
+      `Auth-Service-- Vendor Account with ${vendor.email} logged in successfully`,
+    );
     return {
       vendor: {
         _id: vendor._id,

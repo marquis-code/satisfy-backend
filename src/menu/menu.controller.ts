@@ -3,35 +3,44 @@ import {
   Body,
   ConflictException,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
-  HttpCode,
   HttpException,
   HttpStatus,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
   Patch,
+  Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { CustomerService } from './customer.service';
+import { MenuService } from './menu.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { CreateMenuItemDto } from './dto/create-menu.dto';
+import { UpdateMenuItemDto } from './dto/update-menu.dto';
 
-@Controller('customer')
-export class CustomerController {
-  constructor(private readonly customerService: CustomerService) {}
+@Controller('menu')
+export class MenuController {
+  constructor(private readonly menuService: MenuService) {}
 
-  @Get('/profile')
+  @Post()
   @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  async customerProfile(@Request() req) {
+  async AddMenuItem(
+    @Request() req,
+    @Body() createMenuItemDto: CreateMenuItemDto,
+  ) {
     try {
-      return this.customerService.getProfile(req.user._id);
+      return this.menuService.addItem(req.user._id, createMenuItemDto);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
       } else if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           error.message,
@@ -41,22 +50,52 @@ export class CustomerController {
     }
   }
 
-  @Patch('change-password')
+  @Get()
   @UseGuards(JwtAuthGuard)
-  async changePassword(
+  async getMenuList(
     @Request() req,
-    @Body() changePasswordDto: ChangePasswordDto,
+    @Query('search') search?: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
   ) {
     try {
-      return this.customerService.changePassword(
+      return this.menuService.getMenuList(req.user._id, search, page, limit);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  async updateMenuList(
+    @Request() req,
+    @Body() updateMenuItemDto: UpdateMenuItemDto,
+    @Param('id') id: string,
+  ) {
+    try {
+      return this.menuService.updateMenuItem(
         req.user._id,
-        changePasswordDto,
+        id,
+        updateMenuItemDto,
       );
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
       } else if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           error.message,
@@ -66,16 +105,18 @@ export class CustomerController {
     }
   }
 
-  @Patch('deactivate')
+  @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  async deactivateAccount(@Request() req) {
+  async deleteMenuItem(@Param('id') id: string, @Request() req) {
     try {
-      return this.customerService.deactivateAccount(req.user._id);
+      return this.menuService.deleteMenuItem(req.user._id, id);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
       } else if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           error.message,
@@ -85,16 +126,18 @@ export class CustomerController {
     }
   }
 
-  @Patch('activate')
+  @Patch(':id/disable')
   @UseGuards(JwtAuthGuard)
-  async activateAccount(@Request() req) {
+  async deleteCategory(@Param('id') id: string, @Request() req) {
     try {
-      return this.customerService.activateAccount(req.user._id);
+      return this.menuService.disableMenuItem(req.user._id, id);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
       } else if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           error.message,
@@ -104,57 +147,18 @@ export class CustomerController {
     }
   }
 
-  @Patch()
+  @Patch(':id/enable')
   @UseGuards(JwtAuthGuard)
-  async updateProfile(
-    @Request() req,
-    @Body() updateUserDto: UpdateCustomerDto,
-  ) {
+  async enableMenu(@Param('id') id: string, @Request() req) {
     try {
-      return this.customerService.updateProfile(req.user._id, updateUserDto);
+      return this.menuService.enableMenuItem(req.user._id, id);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
       } else if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      } else {
-        throw new HttpException(
-          error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  @Get('wallet')
-  @UseGuards(JwtAuthGuard)
-  async getUserWallet(@Request() req) {
-    try {
-      return this.customerService.fetchCustomerWallet(req.user._id);
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        throw new HttpException(error.message, HttpStatus.CONFLICT);
-      } else if (error instanceof BadRequestException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      } else {
-        throw new HttpException(
-          error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  @Delete()
-  @UseGuards(JwtAuthGuard)
-  async deleteAccount(@Request() req) {
-    try {
-      return this.customerService.deleteAccount(req.user._id);
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        throw new HttpException(error.message, HttpStatus.CONFLICT);
-      } else if (error instanceof BadRequestException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           error.message,

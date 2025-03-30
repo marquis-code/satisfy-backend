@@ -1,26 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { CreateWalletDto } from './dto/create-wallet.dto';
-import { UpdateWalletDto } from './dto/update-wallet.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Wallet } from './schemas/wallet.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class WalletService {
-  create(createWalletDto: CreateWalletDto) {
-    return 'This action adds a new wallet';
-  }
+  constructor(@InjectModel(Wallet.name) private walletModel: Model<Wallet>) {}
+  async getWallet(userId: string) {
+    const wallet = await this.walletModel
+      .findOne({ vendorId: userId })
+      .setOptions({ getters: true }); // 👈 This enables the getter
 
-  findAll() {
-    return `This action returns all wallet`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} wallet`;
-  }
-
-  update(id: number, updateWalletDto: UpdateWalletDto) {
-    return `This action updates a #${id} wallet`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} wallet`;
+    if (!wallet) {
+      throw new NotFoundException('Wallet not found');
+    }
+    return wallet;
   }
 }
