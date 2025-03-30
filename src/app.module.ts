@@ -7,6 +7,8 @@ import { WalletModule } from './wallet/wallet.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
+import { MenuModule } from './menu/menu.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { AuthModule } from './auth/auth.module';
     VendorModule,
     WalletModule,
     AuthModule,
+    MenuModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
