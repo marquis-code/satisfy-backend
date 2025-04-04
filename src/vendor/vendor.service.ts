@@ -7,7 +7,7 @@ import { Model } from 'mongoose';
 export class VendorService {
   constructor(@InjectModel(Vendor.name) private vendorModel: Model<Vendor>) {}
   async findById(id: string) {
-    return this.vendorModel.findById(id);
+    return this.vendorModel.findById(id).select('-password');
   }
 
   async openStore(vendorId: string): Promise<Vendor> {
@@ -32,5 +32,9 @@ export class VendorService {
     }
 
     return vendor;
+  }
+
+  async findAll() {
+    return this.vendorModel.find().select('-password').exec();
   }
 }

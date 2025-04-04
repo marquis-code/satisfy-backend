@@ -172,4 +172,22 @@ export class MenuService {
 
     return menuItem;
   }
+
+  async findOne(id: string): Promise<MenuItem> {
+    const menuItem = await this.menuItemModel
+      .findById(id)
+      .populate('categoryId')
+      .populate('vendorId')
+      .exec();
+    if (!menuItem) {
+      throw new NotFoundException('Menu item not found');
+    }
+    return menuItem;
+  }
+
+  async findVendorsMenu(vendorId: string) {
+    const menu = await this.menuItemModel.find({ vendorId: vendorId });
+
+    return menu;
+  }
 }

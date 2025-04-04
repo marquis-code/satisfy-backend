@@ -167,4 +167,24 @@ export class MenuController {
       }
     }
   }
+
+  @Get(':vendorId')
+  async getVendorMenu(@Param('vendorId') vendorId: string) {
+    try {
+      return this.menuService.findVendorsMenu(vendorId);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 }

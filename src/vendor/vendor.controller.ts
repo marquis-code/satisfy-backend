@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   NotFoundException,
+  Param,
   Patch,
   Request,
   UseGuards,
@@ -68,6 +69,46 @@ export class VendorController {
   async getWallet(@Request() req) {
     try {
       return this.walletService.getWallet(req.user._id);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Get()
+  async getAllVendors() {
+    try {
+      return this.vendorService.findAll();
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Get(':id')
+  async getVendorById(@Param('id') id: string) {
+    try {
+      return this.vendorService.findById(id);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
