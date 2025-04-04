@@ -13,6 +13,7 @@ import { VendorService } from '../vendor/vendor.service';
 import { OrderStatus } from './order-status.enum';
 import { CustomerService } from '../customer/customer.service';
 import { customAlphabet } from 'nanoid';
+import { UpdateOrderStatusDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -183,5 +184,17 @@ export class OrderService {
       limit: parsedLimit,
       totalPages: Math.ceil(total / parsedLimit),
     };
+  }
+
+  async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto) {
+    const order = await this.orderModel.findByIdAndUpdate(
+      id,
+      { status: updateOrderStatusDto.status },
+      {
+        new: true,
+      },
+    );
+
+    return order;
   }
 }
