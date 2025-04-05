@@ -25,10 +25,16 @@ import { UpdateOrderStatusDto } from './dto/update-order.dto';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   @Post()
-  @UseGuards(JwtAuthGuard)
-  async create(@Body() createOrderDto: CreateOrderDto, @Request() req) {
+  // @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() createOrderDto: CreateOrderDto,
+    // @Request() req
+  ) {
     try {
-      return this.orderService.create(req.user._id, createOrderDto);
+      return this.orderService.create(
+        // req.user._id,
+        createOrderDto,
+      );
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);

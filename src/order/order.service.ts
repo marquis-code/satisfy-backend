@@ -24,8 +24,61 @@ export class OrderService {
     private vendorService: VendorService,
     private customerService: CustomerService,
   ) {}
-  async create(userId: string, createOrderDto: CreateOrderDto): Promise<Order> {
-    const customer = await this.customerService.findById(userId);
+  // async create(
+  //   // userId: string,
+  //   createOrderDto: CreateOrderDto,
+  // ) {
+  //   // const customer = await this.customerService.findById(userId);
+  //   // Verify vendor exists and store is open
+  //   const vendor = await this.vendorService.findById(createOrderDto.vendorId);
+  //   if (!vendor) {
+  //     throw new NotFoundException('Vendor not found');
+  //   }
+  //   if (!vendor.isStoreOpen) {
+  //     throw new BadRequestException('Vendor store is currently closed');
+  //   }
+
+  //   // Calculate total amount
+  //   let totalAmount = 0;
+  //   for (const item of createOrderDto.items) {
+  //     const menuItem = await this.menuService.findOne(item.menuItemId);
+  //     if (!menuItem) {
+  //       throw new NotFoundException(`Menu item ${item.menuItemId} not found`);
+  //     }
+  //     if (!menuItem.isEnabled) {
+  //       throw new BadRequestException(
+  //         `Menu item ${menuItem.name} is not available`,
+  //       );
+  //     }
+  //     totalAmount += menuItem.price * item.quantity;
+  //   }
+
+  //   const alphabet =
+  //     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  //   const generateId = customAlphabet(alphabet, 12);
+
+  //   // Create order
+  //   const order = new this.orderModel({
+  //     orderId: `ST-${generateId()}`,
+  //     // customerId: userId,
+  //     vendorId: createOrderDto.vendorId,
+  //     customerName: createOrderDto.customerName,
+  //     phoneNumber: createOrderDto.phoneNumber,
+  //     deliveryType: createOrderDto.deliveryType,
+  //     location: createOrderDto.location,
+  //     address: createOrderDto.address,
+  //     items: createOrderDto.items,
+  //     totalAmount,
+  //     status: OrderStatus.PENDING,
+  //     notes: createOrderDto.notes,
+  //   });
+
+  //   // Save order
+  //   const savedOrder = await order.save();
+
+  //   return savedOrder;
+  // }
+  async create(createOrderDto: CreateOrderDto) {
     // Verify vendor exists and store is open
     const vendor = await this.vendorService.findById(createOrderDto.vendorId);
     if (!vendor) {
@@ -35,21 +88,50 @@ export class OrderService {
       throw new BadRequestException('Vendor store is currently closed');
     }
 
-    // Calculate total amount
-    let totalAmount = 0;
-    for (const item of createOrderDto.items) {
-      const menuItem = await this.menuService.findOne(item.menuItemId);
-      if (!menuItem) {
-        throw new NotFoundException(`Menu item ${item.menuItemId} not found`);
+    // Calculate total amount and validate items
+    let subTotal = 0; // Renamed from totalAmount to be more explicit
+    const packs = [];
+
+    for (const pack of createOrderDto.packs) {
+      const packItems = [];
+      let packTotal = 0;
+
+      // Default pack quantity to 1 if not specified
+      const packQuantity = pack.quantity || 1;
+
+      for (const item of pack.items) {
+        const menuItem = await this.menuService.findOne(item.menuItemId);
+        if (!menuItem) {
+          throw new NotFoundException(`Menu item ${item.menuItemId} not found`);
+        }
+        if (!menuItem.isEnabled) {
+          throw new BadRequestException(
+            `Menu item ${menuItem.name} is not available`,
+          );
+        }
+
+        const itemTotal = menuItem.price * item.quantity * packQuantity;
+        packTotal += itemTotal;
+
+        packItems.push({
+          menuItemId: item.menuItemId,
+          quantity: item.quantity,
+          price: menuItem.price,
+        });
       }
-      if (!menuItem.isEnabled) {
-        throw new BadRequestException(
-          `Menu item ${menuItem.name} is not available`,
-        );
-      }
-      totalAmount += menuItem.price * item.quantity;
+
+      subTotal += packTotal;
+      packs.push({
+        items: packItems,
+        quantity: packQuantity,
+      });
     }
 
+    // Calculate total amount including charge
+    const charge = createOrderDto.charge || 100; // Default charge if not provided
+    const totalAmount = subTotal + charge;
+
+    // Generate order ID
     const alphabet =
       '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     const generateId = customAlphabet(alphabet, 12);
@@ -57,25 +139,23 @@ export class OrderService {
     // Create order
     const order = new this.orderModel({
       orderId: `ST-${generateId()}`,
-      customerId: userId,
       vendorId: createOrderDto.vendorId,
-      customerName: customer.fullName,
+      customerName: createOrderDto.customerName,
       phoneNumber: createOrderDto.phoneNumber,
       deliveryType: createOrderDto.deliveryType,
       location: createOrderDto.location,
       address: createOrderDto.address,
-      items: createOrderDto.items,
-      totalAmount,
+      packs,
+      subTotal, // Store subtotal separately
+      charge, // Store charge separately
+      totalAmount, // Store the final total
       status: OrderStatus.PENDING,
       notes: createOrderDto.notes,
     });
 
     // Save order
-    const savedOrder = await order.save();
-
-    return savedOrder;
+    return await order.save();
   }
-
   async findAllVendorOrders(
     vendorId: string,
     page = 1,
