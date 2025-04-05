@@ -154,28 +154,35 @@ export class Order extends Document {
   @Prop({
     type: [
       {
-        packId: String, // Optional pack identifier
         items: [
           {
             menuItemId: {
               type: MongooseSchema.Types.ObjectId,
               ref: 'MenuItem',
             },
+            name: String, // Add name
+            description: String, // Add description
             quantity: Number,
             price: Number,
+            image: String, // Add image URL if available
           },
         ],
-        quantity: { type: Number, default: 1 }, // Quantity of this pack
+        quantity: Number,
       },
     ],
     required: true,
   })
   packs: {
-    packId?: string;
-    items: { menuItemId: string; quantity: number; price: number }[];
+    items: {
+      menuItemId: string;
+      name: string;
+      description?: string;
+      quantity: number;
+      price: number;
+      image?: string;
+    }[];
     quantity: number;
   }[];
-
   @Prop({ required: true })
   totalAmount: number;
 

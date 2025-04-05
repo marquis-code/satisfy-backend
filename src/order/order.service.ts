@@ -154,7 +154,19 @@ export class OrderService {
     });
 
     // Save order
-    return await order.save();
+    const savedOrder = await order.save();
+
+    const populatedOrder = await this.orderModel
+      .findById(savedOrder._id)
+      .populate({
+        path: 'packs.items.menuItemId',
+        model: 'MenuItem',
+        select: 'name description price image',
+      })
+      .lean()
+      .exec();
+
+    return populatedOrder;
   }
   async findAllVendorOrders(
     vendorId: string,
