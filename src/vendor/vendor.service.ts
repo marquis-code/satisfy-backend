@@ -37,4 +37,28 @@ export class VendorService {
   async findAll() {
     return this.vendorModel.find().select('-password').exec();
   }
+
+  async findVendorBySlug(slug: string) {
+    const vendor = await this.vendorModel.findOne({ slug }).select('-password');
+    
+    if (!vendor) {
+      throw new NotFoundException(`Vendor with slug '${slug}' not found`);
+    }
+    
+    return {
+      _id: vendor._id,
+      restaurantName: vendor.restaurantName,
+      slug: vendor.slug,
+      firstName: vendor.firstName,
+      lastName: vendor.lastName,
+      description: vendor.description,
+      email: vendor.email,
+      phoneNumber: vendor.phoneNumber,
+      locationName: vendor.locationName,
+      address: vendor.address,
+      displayImage: vendor.displayImage,
+      category: vendor.category,
+      isStoreOpen: vendor.isStoreOpen,
+    };
+  }
 }

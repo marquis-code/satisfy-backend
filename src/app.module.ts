@@ -11,6 +11,7 @@ import { MenuModule } from './menu/menu.module';
 import { CategoryModule } from './category/category.module';
 import { OrderModule } from './order/order.module';
 import { ImageModule } from './image.module';
+import { UrlController } from './vendor/url.controller';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { ImageModule } from './image.module';
     OrderModule,
     ImageModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, UrlController],
   providers: [AppService],
 })
 export class AppModule {}

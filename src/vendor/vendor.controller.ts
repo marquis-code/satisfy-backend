@@ -8,13 +8,13 @@ import {
   NotFoundException,
   Param,
   Patch,
+  Req,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { WalletService } from '../wallet/wallet.service';
-
 @Controller('vendor')
 export class VendorController {
   constructor(
@@ -124,4 +124,7 @@ export class VendorController {
       }
     }
   }
+
+
+ 
 }

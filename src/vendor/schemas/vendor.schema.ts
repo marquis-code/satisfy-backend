@@ -16,6 +16,9 @@ export class Vendor extends Document {
   restaurantName: string;
 
   @Prop({ required: true, unique: true })
+  slug: string;
+
+  @Prop({ required: true, unique: true })
   email: string;
 
   @Prop({ required: true })
