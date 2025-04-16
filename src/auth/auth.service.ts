@@ -132,11 +132,12 @@ export class AuthService {
       category,
       password,
     } = vendorSignupDto;
+    
     // Check if vendor already exists
     const existingUser = await this.vendorModel.findOne({
       $or: [{ email }, { phoneNumber }],
     });
-
+  
     if (existingUser) {
       // Customize error message based on which field conflicted
       if (existingUser.email === email) {
@@ -147,13 +148,27 @@ export class AuthService {
         );
       }
     }
-
+  
+    // Generate slug from restaurant name
+    let slug = this.generateSlug(restaurantName);
+    
+    // Check if slug already exists and make it unique if needed
+    let slugExists = await this.vendorModel.findOne({ slug });
+    let counter = 1;
+    
+    while (slugExists) {
+      slug = this.generateSlug(restaurantName) + '-' + counter;
+      slugExists = await this.vendorModel.findOne({ slug });
+      counter++;
+    }
+  
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
+  
     // Create vendor
     const newVendor = await this.vendorModel.create({
       restaurantName,
+      slug,
       email,
       phoneNumber,
       locationName,
@@ -162,19 +177,20 @@ export class AuthService {
       category,
       password: hashedPassword,
     });
-
+  
     // Create wallet for the vendor
     await this.walletModel.create({ vendorId: newVendor._id });
-
+  
     this.logger.log(
       `Auth-Service-- Vendor Account with ${newVendor.email} created successfully`,
     );
-
+  
     return {
       message: 'Vendor created successfully',
       vendor: {
         _id: newVendor._id,
         restaurantName: newVendor.restaurantName,
+        slug: newVendor.slug,
         email: newVendor.email,
         phoneNumber: newVendor.phoneNumber,
         locationName: newVendor.locationName,
@@ -183,6 +199,16 @@ export class AuthService {
         isStoreOpen: newVendor.isStoreOpen,
       },
     };
+  }
+  
+  // Helper method to generate slug from restaurant name
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters except whitespace and hyphens
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Remove multiple hyphens
+      .trim(); // Trim whitespace from start and end
   }
 
   async vendorLogin(loginDto: LoginDto) {

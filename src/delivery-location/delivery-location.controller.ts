@@ -1,39 +1,48 @@
 import {
-  BadRequestException,
-  ConflictException,
   Controller,
-  Get,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  ConflictException,
   HttpException,
   HttpStatus,
   NotFoundException,
+  BadRequestException,
+  Get,
   Param,
   Patch,
-  Req,
-  Request,
-  UseGuards,
+  Delete,
 } from '@nestjs/common';
-import { VendorService } from './vendor.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { WalletService } from '../wallet/wallet.service';
-@Controller('vendor')
-export class VendorController {
+import { DeliveryLocationService } from './delivery-location.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CreateDeliveryLocationDto } from './dto/create-delivery-location.dto';
+import { UpdateDeliveryLocationDto } from './dto/update-delivery-location.dto';
+
+@Controller('delivery-location')
+export class DeliveryLocationController {
   constructor(
-    private readonly vendorService: VendorService,
-    private readonly walletService: WalletService,
+    private readonly deliveryLocationService: DeliveryLocationService,
   ) {}
 
-  @Patch('open-store')
+  @Post()
   @UseGuards(JwtAuthGuard)
-  async openStore(@Request() req) {
+  async AddDeliveryLocation(
+    @Request() req,
+    @Body() createLocationDto: CreateDeliveryLocationDto,
+  ) {
     try {
-      return this.vendorService.openStore(req.user._id);
+      return this.deliveryLocationService.addDeliveryLocation(
+        req.user._id,
+        createLocationDto,
+      );
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
-      } else if (error instanceof NotFoundException) {
-        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           error.message,
@@ -43,18 +52,18 @@ export class VendorController {
     }
   }
 
-  @Patch('close-store')
+  @Get('all')
   @UseGuards(JwtAuthGuard)
-  async closeStore(@Request() req) {
+  async GetAllDeliveryLocation(@Request() req) {
     try {
-      return this.vendorService.closeStore(req.user._id);
+      return this.deliveryLocationService.getDeliveryLocation(req.user._id);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
-      } else if (error instanceof NotFoundException) {
-        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           error.message,
@@ -64,18 +73,46 @@ export class VendorController {
     }
   }
 
-  @Get('wallet')
+  @Get(':vendorId')
+  async getLocationByVendor(@Param('vendorId') vendorId: string) {
+    try {
+      return this.deliveryLocationService.getDeliveryLocationByVendor(vendorId);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  async getWallet(@Request() req) {
+  async UpdateLocation(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() updateLocationDto: UpdateDeliveryLocationDto,
+  ) {
     try {
-      return this.walletService.getWallet(req.user._id);
+      return this.deliveryLocationService.updateDelieveryLocation(
+        req.user._id,
+        id,
+        updateLocationDto,
+      );
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
-      } else if (error instanceof NotFoundException) {
-        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           error.message,
@@ -85,17 +122,21 @@ export class VendorController {
     }
   }
 
-  @Get()
-  async getAllVendors() {
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  async DeleteLocation(@Request() req, @Param('id') id: string) {
     try {
-      return this.vendorService.findAll();
+      return this.deliveryLocationService.deleteDeliveryLocation(
+        req.user._id,
+        id,
+      );
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
-      } else if (error instanceof NotFoundException) {
-        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
           error.message,
@@ -104,27 +145,4 @@ export class VendorController {
       }
     }
   }
-
-  @Get(':id')
-  async getVendorById(@Param('id') id: string) {
-    try {
-      return this.vendorService.findById(id);
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        throw new HttpException(error.message, HttpStatus.CONFLICT);
-      } else if (error instanceof NotFoundException) {
-        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-      } else if (error instanceof BadRequestException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      } else {
-        throw new HttpException(
-          error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-
- 
 }
