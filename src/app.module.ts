@@ -12,6 +12,7 @@ import { CategoryModule } from './category/category.module';
 import { OrderModule } from './order/order.module';
 import { ImageModule } from './image.module';
 import { UrlController } from './vendor/url.controller';
+import { DeliveryLocationModule } from './delivery-location/delivery-location.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { UrlController } from './vendor/url.controller';
     MenuModule,
     CategoryModule,
     OrderModule,
-    ImageModule
+    ImageModule,
+    DeliveryLocationModule,
   ],
   controllers: [AppController, UrlController],
   providers: [AppService],
