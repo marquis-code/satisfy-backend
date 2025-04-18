@@ -40,11 +40,11 @@ export class VendorService {
 
   async findVendorBySlug(slug: string) {
     const vendor = await this.vendorModel.findOne({ slug }).select('-password');
-    
+
     if (!vendor) {
       throw new NotFoundException(`Vendor with slug '${slug}' not found`);
     }
-    
+
     return {
       _id: vendor._id,
       restaurantName: vendor.restaurantName,

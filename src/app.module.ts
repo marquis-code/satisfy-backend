@@ -12,6 +12,7 @@ import { CategoryModule } from './category/category.module';
 import { OrderModule } from './order/order.module';
 import { ImageModule } from './image.module';
 import { DeliveryLocationModule } from './delivery-location/delivery-location.module';
+import { PackModule } from './pack/pack.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { DeliveryLocationModule } from './delivery-location/delivery-location.mo
     OrderModule,
     ImageModule,
     DeliveryLocationModule,
+    PackModule,
   ],
   controllers: [AppController],
   providers: [AppService],
