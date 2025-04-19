@@ -63,6 +63,27 @@ export class VendorController {
     }
   }
 
+  @Patch('update-pack-price')
+  @UseGuards(JwtAuthGuard)
+  async updatePackPrice(@Request() req, price: number) {
+    try {
+      return this.vendorService.updatePackPrice(req.user._id, price);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   @Get('wallet')
   @UseGuards(JwtAuthGuard)
   async getWallet(@Request() req) {

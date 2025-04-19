@@ -34,6 +34,19 @@ export class VendorService {
     return vendor;
   }
 
+  async updatePackPrice(vendorId: string, price: number): Promise<Vendor> {
+    const vendor = await this.vendorModel
+      .findByIdAndUpdate(vendorId, { packPrice: price }, { new: true })
+      .select('-password');
+
+    if (!vendor) {
+      throw new NotFoundException('Vendor not found');
+    }
+
+    return vendor;
+  }
+
+
   async findAll() {
     return this.vendorModel.find().select('-password').exec();
   }
