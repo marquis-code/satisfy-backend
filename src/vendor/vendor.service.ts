@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Vendor } from './schemas/vendor.schema';
 import { InjectModel } from '@nestjs/mongoose';
+import { UpdateVendorProfileDto } from './dto/update-vendor-profile.dto';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -107,5 +108,21 @@ export class VendorService {
   
     return vendor.workingHours;
   }
+
+  async updateVendorProfile(vendorId: string, updateDto: UpdateVendorProfileDto) {
+    const vendor = await this.vendorModel.findById(vendorId); // adjust for Prisma/TypeORM as needed
+    if (!vendor) {
+      throw new NotFoundException('Vendor not found');
+    }
+  
+    Object.assign(vendor, updateDto);
+    await vendor.save();
+  
+    return {
+      message: 'Vendor profile updated successfully',
+      vendor,
+    };
+  }
+  
   
 }
