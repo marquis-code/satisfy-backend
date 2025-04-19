@@ -35,13 +35,12 @@ export class VendorService {
     return vendor;
   }
 
-  async updatePackPrice(vendorId: string, packSettings: { limit: number; price: number }): Promise<Vendor> {
+  async updatePackSettings(vendorId: string, packSettings: { limit: number; price: number }): Promise<Vendor> {
     const vendor = await this.vendorModel
       .findByIdAndUpdate(
         vendorId,
         {
-          packPrice: packSettings.price,
-          packSettings: { limit: packSettings.limit },
+          packSettings: { limit: packSettings.limit, price: packSettings.price },
         },
         { new: true }
       )

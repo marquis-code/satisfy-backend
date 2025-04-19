@@ -68,14 +68,14 @@ export class VendorController {
     }
   }
 
-  @Patch('update-pack-price')
+  @Patch('update-pack-settings')
   @UseGuards(JwtAuthGuard)
   async updatePackSettings(
     @Request() req,
     @Body() packSettings: UpdatePackSettingsDto,
   ) {
     try {
-      return await this.vendorService.updatePackPrice(
+      return await this.vendorService.updatePackSettings(
         req.user._id,
         packSettings,
       );
