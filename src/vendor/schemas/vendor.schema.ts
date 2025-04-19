@@ -42,8 +42,17 @@ export class Vendor extends Document {
   @Prop({ default: true })
   isStoreOpen: boolean;
 
-  @Prop({ default: 0, required: false })
-  packPrice: number;
+  @Prop({
+    type: {
+      limit: { type: Number, default: 15, max: 15 },
+      number: { type: Number, default: 0 }
+    },
+    default: {}
+  })
+  packSettings: {
+    limit: number;
+    number: number;
+  };
 }
 
 export const VendorSchema = SchemaFactory.createForClass(Vendor);
