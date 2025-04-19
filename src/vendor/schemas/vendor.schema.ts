@@ -53,7 +53,7 @@ export class Vendor extends Document {
     },
     required: false,
   })
-  packSettings?: {
+  packSettings: {
     limit: number;
     number: number;
   };
@@ -78,7 +78,7 @@ export class Vendor extends Document {
       { day: 'Sunday', isActive: true, openingTime: '09:00', closingTime: '17:00' }
     ]
   })
-  workingHours?: {
+  workingHours: {
     day: string;
     isActive: boolean;
     openingTime: string;
