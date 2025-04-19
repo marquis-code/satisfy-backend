@@ -10,10 +10,12 @@ import {
   Patch,
   Request,
   UseGuards,
+  Body
 } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { WalletService } from '../wallet/wallet.service';
+import { UpdatePackSettingsDto } from './dto/update-pack-settings.dto';
 @Controller('vendor')
 export class VendorController {
   constructor(
@@ -65,9 +67,12 @@ export class VendorController {
 
   @Patch('update-pack-price')
   @UseGuards(JwtAuthGuard)
-  async updatePackPrice(@Request() req, price: number) {
+  async updatePackSettings(
+    @Request() req, 
+    @Body() packSettings: UpdatePackSettingsDto
+  ) {
     try {
-      return this.vendorService.updatePackPrice(req.user._id, price);
+      return await this.vendorService.updatePackPrice(req.user._id, packSettings);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
