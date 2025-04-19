@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Vendor } from './schemas/vendor.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -82,4 +82,30 @@ export class VendorService {
       isStoreOpen: vendor.isStoreOpen,
     };
   }
+
+  async updateWorkingHours(
+    vendorId: string,
+    update: { day: string; openingTime?: string; closingTime?: string; isActive?: boolean }
+  ): Promise<any> {
+    const vendor = await this.vendorModel.findById(vendorId);
+    if (!vendor) {
+      throw new NotFoundException('Vendor not found');
+    }
+  
+    const hours = vendor.workingHours;
+    const index = hours.findIndex((h) => h.day.toLowerCase() === update.day.toLowerCase());
+    if (index === -1) {
+      throw new BadRequestException(`Invalid day: ${update.day}`);
+    }
+  
+    if (update.openingTime) hours[index].openingTime = update.openingTime;
+    if (update.closingTime) hours[index].closingTime = update.closingTime;
+    if (update.isActive !== undefined) hours[index].isActive = update.isActive;
+  
+    vendor.workingHours = hours;
+    await vendor.save();
+  
+    return vendor.workingHours;
+  }
+  
 }

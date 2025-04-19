@@ -10,12 +10,13 @@ import {
   Patch,
   Request,
   UseGuards,
-  Body
+  Body,
 } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { WalletService } from '../wallet/wallet.service';
 import { UpdatePackSettingsDto } from './dto/update-pack-settings.dto';
+import { UpdateWorkingHoursDto } from './dto/update-working-hours.dto';
 @Controller('vendor')
 export class VendorController {
   constructor(
@@ -68,11 +69,14 @@ export class VendorController {
   @Patch('update-pack-price')
   @UseGuards(JwtAuthGuard)
   async updatePackSettings(
-    @Request() req, 
-    @Body() packSettings: UpdatePackSettingsDto
+    @Request() req,
+    @Body() packSettings: UpdatePackSettingsDto,
   ) {
     try {
-      return await this.vendorService.updatePackPrice(req.user._id, packSettings);
+      return await this.vendorService.updatePackPrice(
+        req.user._id,
+        packSettings,
+      );
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
@@ -164,6 +168,33 @@ export class VendorController {
       } else {
         throw new HttpException(
           error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Patch('update-working-hours')
+  @UseGuards(JwtAuthGuard)
+  async updateWorkingHours(
+    @Request() req,
+    @Body() updateWorkingHoursDto: UpdateWorkingHoursDto,
+  ) {
+    try {
+      return await this.vendorService.updateWorkingHours(
+        req.user._id,
+        updateWorkingHoursDto,
+      );
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          error.message || 'Internal server error',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
