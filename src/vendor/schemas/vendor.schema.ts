@@ -45,17 +45,17 @@ export class Vendor extends Document {
   @Prop({
     type: {
       limit: { type: Number, default: 15, max: 15 },
-      number: { type: Number, default: 0 }
+      price: { type: Number, default: 0 }
     },
     default: {
       limit: 10,
-      number: 0
+      price: 0
     },
     required: false,
   })
   packSettings: {
     limit: number;
-    number: number;
+    price: number;
   };
 
   @Prop({

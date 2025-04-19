@@ -17,6 +17,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { WalletService } from '../wallet/wallet.service';
 import { UpdatePackSettingsDto } from './dto/update-pack-settings.dto';
 import { UpdateWorkingHoursDto } from './dto/update-working-hours.dto';
+import { UpdateVendorProfileDto } from './dto/update-vendor-profile.dto';
+
 @Controller('vendor')
 export class VendorController {
   constructor(
@@ -66,14 +68,14 @@ export class VendorController {
     }
   }
 
-  @Patch('update-pack-price')
+  @Patch('update-pack-settings')
   @UseGuards(JwtAuthGuard)
   async updatePackSettings(
     @Request() req,
     @Body() packSettings: UpdatePackSettingsDto,
   ) {
     try {
-      return await this.vendorService.updatePackPrice(
+      return await this.vendorService.updatePackSettings(
         req.user._id,
         packSettings,
       );
@@ -200,4 +202,32 @@ export class VendorController {
       }
     }
   }
+
+  @Patch('update-profile')
+@UseGuards(JwtAuthGuard)
+async updateVendorProfile(
+  @Request() req,
+  @Body() updateProfileDto: UpdateVendorProfileDto,
+) {
+  try {
+    return await this.vendorService.updateVendorProfile(
+      req.user._id,
+      updateProfileDto,
+    );
+  } catch (error) {
+    if (error instanceof ConflictException) {
+      throw new HttpException(error.message, HttpStatus.CONFLICT);
+    } else if (error instanceof NotFoundException) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    } else if (error instanceof BadRequestException) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    } else {
+      throw new HttpException(
+        error.message || 'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+}
+
 }

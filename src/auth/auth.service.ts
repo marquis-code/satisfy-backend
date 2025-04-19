@@ -197,6 +197,8 @@ export class AuthService {
         address: newVendor.address,
         displayImage: displayImage,
         isStoreOpen: newVendor.isStoreOpen,
+        workingHours: newVendor.workingHours,
+        packSettings: newVendor.packSettings
       },
     };
   }
@@ -240,6 +242,8 @@ export class AuthService {
         email: vendor.email,
         phoneNumber: vendor.phoneNumber,
         locationName: vendor.locationName,
+        workingHours: vendor.workingHours,
+        packSettings: vendor.packSettings
       },
       token,
     };
