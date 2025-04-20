@@ -80,6 +80,8 @@ export class VendorService {
       displayImage: vendor.displayImage,
       category: vendor.category,
       isStoreOpen: vendor.isStoreOpen,
+      packSettings: vendor.packSettings,
+      workingHours: vendor.workingHours
     };
   }
 
