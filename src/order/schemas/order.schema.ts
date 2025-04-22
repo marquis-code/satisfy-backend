@@ -189,6 +189,12 @@ export class Order extends Document {
   @Prop({ required: true })
   charge: number;
 
+  @Prop({ required: false })
+  packPrice: number;
+
+  @Prop({ required: false })
+  deliveryPrice: number;
+
   @Prop({ default: OrderStatus.PENDING, enum: Object.values(OrderStatus) })
   status: OrderStatus;
 
