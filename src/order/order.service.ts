@@ -149,6 +149,8 @@ export class OrderService {
       subTotal, // Store subtotal separately
       charge, // Store charge separately
       totalAmount, // Store the final total
+      packPrice: createOrderDto.packPrice,
+      deliveryPrice: createOrderDto.deliveryPrice,
       status: OrderStatus.PENDING,
       notes: createOrderDto.notes,
     });
