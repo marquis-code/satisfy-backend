@@ -145,7 +145,7 @@ export class Order extends Document {
   @Prop({ required: true })
   phoneNumber: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   location: string;
 
   @Prop({ required: false })

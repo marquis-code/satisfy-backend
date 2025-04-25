@@ -51,9 +51,9 @@ export class CreateOrderDto {
   @IsEnum(OrderDelivery)
   deliveryType: OrderDelivery;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  location: string;
+  location?: string;
 
   @IsOptional()
   @IsString()
