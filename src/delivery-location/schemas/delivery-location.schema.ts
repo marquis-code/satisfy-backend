@@ -17,3 +17,7 @@ export class DeliveryLocation extends Document {
 }
 export const DeliveryLocationSchema =
   SchemaFactory.createForClass(DeliveryLocation);
+
+  // Add this to ensure virtuals are included
+DeliveryLocationSchema.set('toJSON', { virtuals: true });
+DeliveryLocationSchema.set('toObject', { virtuals: true });
