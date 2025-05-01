@@ -213,6 +213,7 @@ export class OrderService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(parsedLimit)
+        .populate('packs.items.menuItemId')
         .lean(), // Returns plain JS objects for better performance
 
       this.orderModel.countDocuments(query),
@@ -266,6 +267,7 @@ export class OrderService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(parsedLimit)
+        .populate('packs.items.menuItemId')
         .lean(), // Returns plain JS objects for better performance
 
       this.orderModel.countDocuments(query),
