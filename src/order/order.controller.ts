@@ -116,27 +116,26 @@ export class OrderController {
     }
   }
 
-@Get(':id')
-@UseGuards(JwtAuthGuard)
-async getOrderById(@Param('id') id: string, @Request() req) {
-  try {
-    return await this.orderService.findOrderById(id, req.user._id);
-  } catch (error) {
-    if (error instanceof ConflictException) {
-      throw new HttpException(error.message, HttpStatus.CONFLICT);
-    } else if (error instanceof BadRequestException) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    } else if (error instanceof NotFoundException) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-    } else {
-      throw new HttpException(
-        error.message,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async getOrderById(@Param('id') id: string, @Request() req) {
+    try {
+      return await this.orderService.findOrderById(id, req.user._id);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
-}
-
 
   @Patch(':id')
   async updateOrderStatus(

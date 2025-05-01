@@ -268,7 +268,7 @@ export class OrderService {
         .skip(skip)
         .limit(parsedLimit)
         .populate('packs.items.menuItemId')
-        .lean(), 
+        .lean(),
 
       this.orderModel.countDocuments(query),
     ]);
@@ -283,13 +283,14 @@ export class OrderService {
   }
 
   async findOrderById(orderId: string, vendorId: string) {
-    const order = await this.orderModel.findOne({ _id: orderId, vendorId }).populate('packs.items.menuItemId')
+    const order = await this.orderModel
+      .findOne({ _id: orderId, vendorId })
+      .populate('packs.items.menuItemId');
     if (!order) {
       throw new NotFoundException('Order not found');
     }
     return order;
   }
-  
 
   async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto) {
     const order = await this.orderModel.findByIdAndUpdate(
