@@ -1,7 +1,8 @@
+// vendor.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Vendor extends Document {
   @Prop({ required: false })
   firstName: string;
@@ -58,6 +59,7 @@ export class Vendor extends Document {
     price: number;
   };
 
+  // Keep this field for backward compatibility but don't use it for population
   @Prop({
     type: [{ type: MongooseSchema.Types.ObjectId, ref: 'DeliveryLocation' }],
     default: [],
@@ -93,3 +95,12 @@ export class Vendor extends Document {
 }
 
 export const VendorSchema = SchemaFactory.createForClass(Vendor);
+
+// Create a virtual field with a different name to avoid conflict
+VendorSchema.virtual('vendorDeliveryLocations', {
+  ref: 'DeliveryLocation',
+  localField: '_id',
+  foreignField: 'vendorId',
+  justOne: false, // Return an array of delivery locations
+  match: { isDeleted: false }, // Only get non-deleted locations
+});
