@@ -280,6 +280,15 @@ export class OrderService {
     };
   }
 
+  async findOrderById(orderId: string, vendorId: string) {
+    const order = await this.orderModel.findOne({ id: orderId, vendorId });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    return order;
+  }
+  
+
   async updateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto) {
     const order = await this.orderModel.findByIdAndUpdate(
       id,
