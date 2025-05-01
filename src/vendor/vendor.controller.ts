@@ -204,30 +204,29 @@ export class VendorController {
   }
 
   @Patch('update-profile')
-@UseGuards(JwtAuthGuard)
-async updateVendorProfile(
-  @Request() req,
-  @Body() updateProfileDto: UpdateVendorProfileDto,
-) {
-  try {
-    return await this.vendorService.updateVendorProfile(
-      req.user._id,
-      updateProfileDto,
-    );
-  } catch (error) {
-    if (error instanceof ConflictException) {
-      throw new HttpException(error.message, HttpStatus.CONFLICT);
-    } else if (error instanceof NotFoundException) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-    } else if (error instanceof BadRequestException) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    } else {
-      throw new HttpException(
-        error.message || 'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+  @UseGuards(JwtAuthGuard)
+  async updateVendorProfile(
+    @Request() req,
+    @Body() updateProfileDto: UpdateVendorProfileDto,
+  ) {
+    try {
+      return await this.vendorService.updateVendorProfile(
+        req.user._id,
+        updateProfileDto,
       );
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(
+          error.message || 'Internal server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
-}
-
 }
