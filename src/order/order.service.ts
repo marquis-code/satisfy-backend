@@ -281,7 +281,7 @@ export class OrderService {
   }
 
   async findOrderById(orderId: string, vendorId: string) {
-    const order = await this.orderModel.findOne({ id: orderId, vendorId });
+    const order = await this.orderModel.findOne({ _id: orderId, vendorId });
     if (!order) {
       throw new NotFoundException('Order not found');
     }
