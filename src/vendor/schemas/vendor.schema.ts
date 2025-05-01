@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Vendor extends Document {
@@ -57,6 +57,12 @@ export class Vendor extends Document {
     limit: number;
     price: number;
   };
+
+  @Prop({
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'DeliveryLocation' }],
+    default: [],
+  })
+  deliveryLocations: Types.ObjectId[];
 
   @Prop({
     type: [

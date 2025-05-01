@@ -12,7 +12,7 @@ import { Model } from 'mongoose';
 export class VendorService {
   constructor(@InjectModel(Vendor.name) private vendorModel: Model<Vendor>) {}
   async findById(id: string) {
-    return this.vendorModel.findById(id).select('-password');
+    return this.vendorModel.findById(id).select('-password').populate('deliveryLocations')
   }
 
   async openStore(vendorId: string): Promise<Vendor> {
@@ -64,7 +64,7 @@ export class VendorService {
   }
 
   async findAll() {
-    return this.vendorModel.find().select('-password').exec();
+    return this.vendorModel.find().select('-password').populate('deliveryLocations').exec()
   }
 
   async findVendorBySlug(slug: string) {
@@ -92,6 +92,7 @@ export class VendorService {
       isStoreOpen: vendor.isStoreOpen,
       packSettings: vendor.packSettings,
       workingHours: vendor.workingHours,
+      deliveryLocations: vendor.deliveryLocations
     };
   }
 
