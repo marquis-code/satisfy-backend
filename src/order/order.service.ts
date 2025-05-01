@@ -268,7 +268,7 @@ export class OrderService {
         .skip(skip)
         .limit(parsedLimit)
         .populate('packs.items.menuItemId')
-        .lean(), // Returns plain JS objects for better performance
+        .lean(), 
 
       this.orderModel.countDocuments(query),
     ]);
