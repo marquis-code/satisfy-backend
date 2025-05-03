@@ -6,13 +6,46 @@ import {
 import { Vendor } from './schemas/vendor.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { UpdateVendorProfileDto } from './dto/update-vendor-profile.dto';
+import { DeliveryLocation } from '../delivery-location/schemas/delivery-location.schema';
 import { Model } from 'mongoose';
+
+// Define an interface for populated vendor result
+interface PopulatedVendorResult {
+  _id: string;
+  restaurantName: string;
+  slug: string;
+  firstName: string;
+  lastName: string;
+  description: string;
+  email: string;
+  phoneNumber: string;
+  locationName: string;
+  address: string;
+  displayImage: string;
+  category: string;
+  isStoreOpen: boolean;
+  packSettings: {
+    limit: number;
+    price: number;
+  };
+  workingHours: {
+    day: string;
+    isActive: boolean;
+    openingTime: string;
+    closingTime: string;
+  }[];
+  deliveryLocations: DeliveryLocation[];
+}
+
 
 @Injectable()
 export class VendorService {
   constructor(@InjectModel(Vendor.name) private vendorModel: Model<Vendor>) {}
   async findById(id: string) {
-    return this.vendorModel.findById(id).select('-password').populate('deliveryLocations')
+    return this.vendorModel.findById(id).select('-password').populate({
+      path: 'deliveryLocation',
+      match: { isDeleted: false }
+    });
   }
 
   async openStore(vendorId: string): Promise<Vendor> {
@@ -64,17 +97,26 @@ export class VendorService {
   }
 
   async findAll() {
-    return this.vendorModel.find().select('-password').populate('deliveryLocations').exec()
+    return this.vendorModel.find().select('-password').populate({
+      path: 'deliveryLocation',
+      match: { isDeleted: false }
+    }).exec()
   }
 
-  async findVendorBySlug(slug: string) {
+  async findVendorBySlug(slug: string): Promise<PopulatedVendorResult | any> {
     const vendor = await this.vendorModel
-      .findOne({ slug: slug })
+      .findOne({ slug: slug }).populate({
+        path: 'deliveryLocation',
+        match: { isDeleted: false }
+      })
       .select('-password');
 
     if (!vendor) {
       throw new NotFoundException(`Vendor with slug '${slug}' not found`);
     }
+
+     // Type assertion for populated documents
+  const deliveryLocations = vendor.deliveryLocation as unknown as DeliveryLocation[];
 
     return {
       _id: vendor._id,
@@ -92,7 +134,7 @@ export class VendorService {
       isStoreOpen: vendor.isStoreOpen,
       packSettings: vendor.packSettings,
       workingHours: vendor.workingHours,
-      deliveryLocations: vendor.deliveryLocations
+      deliveryLocations: deliveryLocations
     };
   }
 
