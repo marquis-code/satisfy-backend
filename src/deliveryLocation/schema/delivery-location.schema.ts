@@ -1,6 +1,6 @@
 // delivery-location.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class DeliveryLocation extends Document {
@@ -12,6 +12,9 @@ export class DeliveryLocation extends Document {
 
   @Prop({ default: false })
   isDeleted: boolean;
+
+  @Prop({ required: true, type: MongooseSchema.Types.ObjectId, ref: 'Vendor' })
+  vendorId: MongooseSchema.Types.ObjectId;
 }
 
 export const DeliveryLocationSchema = SchemaFactory.createForClass(DeliveryLocation);

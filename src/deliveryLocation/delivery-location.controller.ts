@@ -64,7 +64,7 @@ import {
     }
 
     @Get('vendor/:vendorId')
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     async findByVendorId(@Param('vendorId') vendorId: string) {
       try {
         if (!vendorId) {
