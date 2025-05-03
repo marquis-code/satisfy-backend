@@ -62,6 +62,28 @@ import {
         }
       }
     }
+
+    @Get('vendor/:vendorId')
+    @UseGuards(JwtAuthGuard)
+    async findByVendorId(@Param('vendorId') vendorId: string) {
+      try {
+        if (!vendorId) {
+          throw new BadRequestException('Vendor ID is required');
+        }
+        return await this.deliveryLocationService.findAllForVendor(vendorId);
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+        } else if (error instanceof BadRequestException) {
+          throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+        } else {
+          throw new HttpException(
+            error.message || 'Internal server error',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+      }
+    }
   
     @Get(':id')
     async findOne(@Param('id') id: string) {
