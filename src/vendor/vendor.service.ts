@@ -37,15 +37,17 @@ interface PopulatedVendorResult {
   deliveryLocations: DeliveryLocation[];
 }
 
-
 @Injectable()
 export class VendorService {
   constructor(@InjectModel(Vendor.name) private vendorModel: Model<Vendor>) {}
   async findById(id: string) {
-    return this.vendorModel.findById(id).select('-password').populate({
-      path: 'deliveryLocation',
-      match: { isDeleted: false }
-    });
+    return this.vendorModel
+      .findById(id)
+      .select('-password')
+      .populate({
+        path: 'deliveryLocation',
+        match: { isDeleted: false },
+      });
   }
 
   async openStore(vendorId: string): Promise<Vendor> {
@@ -97,17 +99,22 @@ export class VendorService {
   }
 
   async findAll() {
-    return this.vendorModel.find().select('-password').populate({
-      path: 'deliveryLocation',
-      match: { isDeleted: false }
-    }).exec()
+    return this.vendorModel
+      .find()
+      .select('-password')
+      .populate({
+        path: 'deliveryLocation',
+        match: { isDeleted: false },
+      })
+      .exec();
   }
 
   async findVendorBySlug(slug: string): Promise<PopulatedVendorResult | any> {
     const vendor = await this.vendorModel
-      .findOne({ slug: slug }).populate({
+      .findOne({ slug: slug })
+      .populate({
         path: 'deliveryLocation',
-        match: { isDeleted: false }
+        match: { isDeleted: false },
       })
       .select('-password');
 
@@ -115,8 +122,9 @@ export class VendorService {
       throw new NotFoundException(`Vendor with slug '${slug}' not found`);
     }
 
-     // Type assertion for populated documents
-  const deliveryLocations = vendor.deliveryLocation as unknown as DeliveryLocation[];
+    // Type assertion for populated documents
+    const deliveryLocations =
+      vendor.deliveryLocation as unknown as DeliveryLocation[];
 
     return {
       _id: vendor._id,
@@ -134,7 +142,7 @@ export class VendorService {
       isStoreOpen: vendor.isStoreOpen,
       packSettings: vendor.packSettings,
       workingHours: vendor.workingHours,
-      deliveryLocations: deliveryLocations
+      deliveryLocations: deliveryLocations,
     };
   }
 

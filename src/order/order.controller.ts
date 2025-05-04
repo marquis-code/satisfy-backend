@@ -116,6 +116,58 @@ export class OrderController {
     }
   }
 
+  @Get('total-orders')
+  @UseGuards(JwtAuthGuard)
+  async getCount(@Request() req) {
+    try {
+      return await this.orderService.countByVendor(req.user._id);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Get('today-orders')
+  @UseGuards(JwtAuthGuard)
+  async getTodayOrders(@Request() req) {
+    try {
+      return await this.orderService.getTodayOrders(req.user._id);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new HttpException(error.message, HttpStatus.CONFLICT);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Get('monthly-analysis')
+  @UseGuards(JwtAuthGuard)
+  async getMonthlyAnalysisVendor(
+    @Request() req,
+    @Query('year', new DefaultValuePipe(new Date().getFullYear()), ParseIntPipe)
+    year: number,
+  ) {
+    return this.orderService.getMonthlyAnalysis(year, req.user._id);
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async getOrderById(@Param('id') id: string, @Request() req) {

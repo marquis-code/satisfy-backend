@@ -303,4 +303,95 @@ export class OrderService {
 
     return order;
   }
+
+  async countByVendor(vendorId: string) {
+    const total_orders = await this.orderModel
+      .countDocuments({ vendorId })
+      .exec();
+    return { total: total_orders };
+  }
+
+  async getTodayOrders(vendorId?: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const query: any = {
+      createdAt: {
+        $gte: today,
+        $lt: tomorrow,
+      },
+    };
+
+    query.vendorId = vendorId;
+
+    const orders = await this.orderModel.find(query).exec();
+
+    const count = orders.length;
+
+    return { count };
+  }
+
+  async getMonthlyAnalysis(year: number, vendorId?: string): Promise<any[]> {
+    const query: any[] = [
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$createdAt' },
+          count: { $sum: 1 },
+          revenue: { $sum: '$totalAmount' },
+          averageOrderValue: { $avg: '$totalAmount' },
+          completedOrders: {
+            $sum: {
+              $cond: [{ $eq: ['$status', OrderStatus.COMPLETED] }, 1, 0],
+            },
+          },
+          cancelledOrders: {
+            $sum: {
+              $cond: [{ $eq: ['$status', OrderStatus.CANCELLED] }, 1, 0],
+            },
+          },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ];
+
+    if (vendorId) {
+      query[0].$match.vendorId = new mongoose.Types.ObjectId(vendorId);
+    }
+
+    const result = await this.orderModel.aggregate(query).exec();
+
+    // Fill in missing months
+    const monthlyData = Array(12)
+      .fill(null)
+      .map((_, index) => {
+        const month = index + 1;
+        const found = result.find((item) => item._id === month);
+        return {
+          month,
+          count: found ? found.count : 0,
+          revenue: found ? found.revenue : 0,
+          averageOrderValue: found ? found.averageOrderValue : 0,
+          completedOrders: found ? found.completedOrders : 0,
+          cancelledOrders: found ? found.cancelledOrders : 0,
+          completionRate: found
+            ? (found.completedOrders / (found.count || 1)) * 100
+            : 0,
+        };
+      });
+
+    return monthlyData;
+  }
 }
