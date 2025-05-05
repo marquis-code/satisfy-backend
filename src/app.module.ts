@@ -14,6 +14,7 @@ import { ImageModule } from './image.module';
 import { DeliveryLocationModule } from './delivery-location/delivery-location.module';
 import { PackModule } from './pack/pack.module';
 import { UpdatedDeliveryLocationModule } from './deliveryLocation/delivery-location.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { UpdatedDeliveryLocationModule } from './deliveryLocation/delivery-locat
     ImageModule,
     DeliveryLocationModule,
     PackModule,
-    UpdatedDeliveryLocationModule
+    UpdatedDeliveryLocationModule,
+    ReviewModule
   ],
   controllers: [AppController],
   providers: [AppService],
