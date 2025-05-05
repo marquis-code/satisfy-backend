@@ -47,6 +47,8 @@ export class VendorService {
       .populate({
         path: 'deliveryLocation',
         match: { isDeleted: false },
+      }).populate({
+        path: 'reviews'
       });
   }
 
@@ -105,8 +107,9 @@ export class VendorService {
       .populate({
         path: 'deliveryLocation',
         match: { isDeleted: false },
-      })
-      .exec();
+      }).populate({
+        path: 'reviews'
+      }).exec();
   }
 
   async findVendorBySlug(slug: string): Promise<PopulatedVendorResult | any> {
@@ -115,6 +118,8 @@ export class VendorService {
       .populate({
         path: 'deliveryLocation',
         match: { isDeleted: false },
+      }).populate({
+        path: 'reviews'
       })
       .select('-password');
 
@@ -143,6 +148,7 @@ export class VendorService {
       packSettings: vendor.packSettings,
       workingHours: vendor.workingHours,
       deliveryLocations: deliveryLocations,
+      reviews: vendor.reviews
     };
   }
 
