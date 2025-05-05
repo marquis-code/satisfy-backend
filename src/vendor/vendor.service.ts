@@ -48,7 +48,9 @@ export class VendorService {
         path: 'deliveryLocation',
         match: { isDeleted: false },
       }).populate({
-        path: 'reviews'
+        path: 'reviews',
+        match: { isDeleted: { $ne: true } },
+        options: { sort: { createdAt: -1 } }
       });
   }
 
@@ -108,7 +110,9 @@ export class VendorService {
         path: 'deliveryLocation',
         match: { isDeleted: false },
       }).populate({
-        path: 'reviews'
+        path: 'reviews',
+        match: { isDeleted: { $ne: true } },
+        options: { sort: { createdAt: -1 } }
       }).exec();
   }
 
@@ -119,7 +123,9 @@ export class VendorService {
         path: 'deliveryLocation',
         match: { isDeleted: false },
       }).populate({
-        path: 'reviews'
+        path: 'reviews',
+        match: { isDeleted: { $ne: true } },
+        options: { sort: { createdAt: -1 } }
       })
       .select('-password');
 
