@@ -1,33 +1,35 @@
 import {   
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    UseGuards,
-    Request,
-    ConflictException,
-    NotFoundException,
-    HttpStatus,
-    HttpException,
-    BadRequestException,
-   } from "@nestjs/common";
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+  ConflictException,
+  NotFoundException,
+  HttpStatus,
+  HttpException,
+  BadRequestException,
+} from "@nestjs/common";
 import { ReviewService } from "./review.service";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
 
-@Controller('review')
+@Controller('vendors/:vendorId/reviews')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
+  
   @Post()
   async createReview(
     @Body() createReviewDto: CreateReviewDto,
     @Param('vendorId') vendorId: string, 
   ) {
     try {
-      return this.reviewService.createReview(vendorId,
+      return this.reviewService.createReview(
+        vendorId,
         createReviewDto,
       );
     } catch (error) {
@@ -68,7 +70,26 @@ export class ReviewController {
     }
   }
 
-  @Patch('/:id')
+  @Get(':id')
+  async getReviewById(
+    @Param('vendorId') vendorId: string,
+    @Param('id') id: string,
+  ) {
+    try {
+      return this.reviewService.findReviewById(vendorId, id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  @Patch(':id')
   async updateReview(
     @Param('id') id: string,
     @Param('vendorId') vendorId: string,
@@ -96,11 +117,11 @@ export class ReviewController {
     }
   }
 
-  @Delete('/:id')
+  @Delete(':id')
   async deleteReview(
     @Param('id') id: string, 
     @Param('vendorId') vendorId: string, 
-    @Request() req) {
+  ) {
     try {
       return this.reviewService.deleteReview(vendorId, id);
     } catch (error) {
