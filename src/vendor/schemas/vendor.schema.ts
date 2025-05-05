@@ -201,6 +201,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { DeliveryLocation } from '../../delivery-location/schemas/delivery-location.schema';
+import { Review } from 'src/review/schemas/review.schema';
 
 @Schema({ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Vendor extends Document {
@@ -263,7 +264,13 @@ export class Vendor extends Document {
     type: [{ type: MongooseSchema.Types.ObjectId, ref: 'DeliveryLocation' }],
     default: []
   })
-  deliveryLocation: Types.ObjectId[] | DeliveryLocation[]; // Allow both ObjectId[] and populated DeliveryLocation[]
+  deliveryLocation: Types.ObjectId[] | DeliveryLocation[]; 
+
+  @Prop({
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Review' }],
+    default: []
+  })
+  reviews: Types.ObjectId[] | Review[]; 
 
   @Prop({
     type: [
